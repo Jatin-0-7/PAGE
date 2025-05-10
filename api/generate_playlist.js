@@ -21,7 +21,7 @@ export default async function handler(req, res) {
         const groupLogo = channel.group_logo || ''; // Added group-logo
         const originalGroup = channel.channel_genre || 'General';
         const group = `${providerName} | ${originalGroup}`;
-        const url = `https://oppu-restream.pages.dev/api/stream?channel=${channel.channel_id}`;
+        const url = `https://special-by07.vercel.app/api/stream?channel=${channel.channel_id}`;
 
         // Include group-logo in the M3U entry
         m3uPlaylist += `#EXTINF:-1 tvg-id="${channel.channel_id}" tvg-name="${name}" tvg-logo="${logo}" group-title="${group}" group-logo="${groupLogo}", ${name}\n`;
