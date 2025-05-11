@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Video Player Web Page</title>
+  <!-- Use the JW Player script from the provided URL -->
+  <script src="https://fredflix.fun/content.jwplatform.com/libraries/IDzF9Zmk.js"></script> <!-- Replace with your JW Player library if necessary -->
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -48,12 +50,6 @@
       display: block;
     }
 
-    video {
-      width: 100%;
-      border-radius: 8px;
-      margin-top: 20px;
-    }
-    
     .title {
       font-size: 24px;
       margin-bottom: 10px;
@@ -72,12 +68,30 @@
       <a href="https://fredflix.fun/play.php?id=67f55a432ad5e">
         <img src="assets/images/67f55a431493b_20250408_231711.png" alt="Sony Sab">
       </a>
-      <video controls>
-        <source src="https://fredflix.fun/play.php?id=67f55a432ad5e" type="video/mp4">
-        Your browser does not support the video tag.
-      </video>
+      
+      <!-- JW Player Embed -->
+      <div id="jw-player"></div>
+
+      <script>
+        // Initialize JW Player with the provided library
+        jwplayer("jw-player").setup({
+          file: "https://fredflix.fun/play.php?id=67f55a432ad5e", // Video URL
+          width: "100%",
+          height: "auto",
+          image: "assets/images/67f55a431493b_20250408_231711.png", // Thumbnail image
+          events: {
+            onReady: function() {
+              console.log("JW Player is ready!");
+            },
+            onError: function(event) {
+              console.error("Error: ", event);
+            }
+          }
+        });
+      </script>
     </div>
   </div>
 
 </body>
 </html>
+
