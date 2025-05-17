@@ -2,29 +2,34 @@ import { readFile } from 'fs/promises';
 import path from 'path';
 
 export default async function handler(req, res) {
+    // JSON फाईल वाचा
     const jsonPath = path.join(process.cwd(), 'channels.json');
     const jsonData = await readFile(jsonPath, 'utf-8');
     const channels = JSON.parse(jsonData);
 
+    // PROVIDER आणि USER-AGENT नाव सेट करा
     const providerName = 'IPTV07INDIA';
+    const userAgent = 'IPTV07INDIA';
 
-    // Header line
-    let m3uPlaylist = "#EXTM3U xjoin TG @IPTV07INDIA\n\n";
+    // M3U Header तयार करा
+    let m3uPlaylist = "#EXTM3U xjoin on Telegram @IPTV07INDIA\n\n";
 
+    // प्रत्येक चॅनेलसाठी Vercel URL तयार करा
     channels.forEach(channel => {
         const name = channel.channel_name || 'Unknown';
         const logo = channel.channel_logo || '';
-        const genre = channel.channel_genre || 'General';
-        const group = `${providerName} | ${genre}`;
-        const channelId = channel.channel_id;
+        const groupLogo = channel.group_logo || ''; // Added group-logo
+        const originalGroup = channel.channel_genre || 'General';
+        const group = `${providerName} | ${originalGroup}`;
+        const url = `https://special-by07.vercel.app/api/stream?channel=${channel.channel_id}`;
 
-        // Embed headers in the stream URL
-        const url = `https://special-by07.vercel.app//api/stream?channel=${channelId}`;
-
-        m3uPlaylist += `#EXTINF:-1 tvg-id="${channelId}" tvg-name="${name}" tvg-logo="${logo}" group-title="${group}", ${name}\n`;
+        // Include group-logo in the M3U entry
+        m3uPlaylist += `#EXTINF:-1 tvg-id="${channel.channel_id}" tvg-name="${name}" tvg-logo="${logo}" group-title="${group}" group-logo="${groupLogo}", ${name}\n`;
+        m3uPlaylist += `#EXTVLCOPT:http-user-agent=${userAgent}\n`; // <-- NEW USER AGENT LINE
         m3uPlaylist += `${url}\n\n`;
     });
 
+    // M3U फाईल रिस्पॉन्स करा
     res.setHeader('Content-Type', 'text/plain');
     res.send(m3uPlaylist);
 }
