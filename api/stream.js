@@ -1,24 +1,42 @@
-import { readFile } from 'fs/promises';
-import path from 'path';
-
 export default async function handler(req, res) {
-    const { channel } = req.query;
+  const { id } = req.query;
 
-    // JSON फाईल वाचा
-    const jsonPath = path.join(process.cwd(), 'channels.json');
-    const jsonData = await readFile(jsonPath, 'utf-8');
-    const channels = JSON.parse(jsonData);
+  if (!id) {
+    res.status(400).send("Error: 'id' parameter is missing.");
+    return;
+  }
 
-    // चॅनल शोधा
-    const channelData = channels.find(ch => ch.channel_id === channel);
+  const streamURL = `https://sflex07.fun:443/JsoByStreamFlex/app/ts_live_${id}.m3u8`;
 
-    if (!channelData) {
-        return res.status(404).json({ error: "Channel not found" });
+  try {
+    const response = await fetch(streamURL, {
+      method: 'GET',
+      headers: {
+        'Icy-MetaData': '1',
+        'Accept-Encoding': 'identity',
+        'Host': 'xott.live',
+        'Connection': 'Keep-Alive',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+      },
+      redirect: 'manual'
+    });
+
+    // Handle 302 Redirect
+    const location = response.headers.get('location');
+    if (response.status === 302 && location) {
+      return res.redirect(302, location);
     }
 
-    // Original URL फेच करा
-    const originalUrl = channelData.channel_url;
+    // Handle Direct Stream (200 OK)
+    if (response.status === 200) {
+      res.setHeader('Content-Type', 'video/MP2T');
+      response.body.pipe(res);
+      return;
+    }
 
-    // Original URL वर redirect करा
-    res.redirect(originalUrl);
+    // Handle errors
+    res.status(response.status).send(`Error: Unexpected status code ${response.status}`);
+  } catch (err) {
+    res.status(500).send("Error: " + err.message);
+  }
 }
