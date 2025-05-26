@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/jtv-07/:id.m3u8",
+      "destination": "/api/stream?id=:id"
+    }
+  ]
+}
